@@ -65,6 +65,13 @@ class ControllerTest {
     }
 
     @Test
-    void enterPayment() {
+    void testEnterPayment() {
+        ItemDTO itemDTO = new ItemDTO(9999, 10,"test item", 0.10);
+        controller.getSale().addItem(itemDTO, 1);
+        controller.closeSale();
+        double change = controller.enterPayment(20);
+        double expectedChange = 9;
+        assertEquals(change, expectedChange, "Incorrect amount of change");
+
     }
 }
