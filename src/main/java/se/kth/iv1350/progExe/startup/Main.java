@@ -7,8 +7,17 @@ import se.kth.iv1350.progExe.integration.InventorySystemHandler;
 import se.kth.iv1350.progExe.integration.PrinterHandler;
 import se.kth.iv1350.progExe.view.View;
 
+/**
+ * The Main class contains the main method to start the application.
+ */
 public class Main {
-    public static void main(String[] args) {
+    /**
+     * The entry point of the application.
+     * Initializes the necessary handlers and controller, creates the view, and starts the execution.
+     *
+     * @param args The application does not take any command-line parameters.
+     */
+    public static void main(String[] args) throws Exception {
 
         PrinterHandler prnt = new PrinterHandler();
         AccountingSystemHandler acc = new AccountingSystemHandler();
@@ -19,7 +28,6 @@ public class Main {
 
         View view = new View(contr);
 
-
-        System.out.println("Hello world!");
+        view.runFakeExecution();
     }
 }
