@@ -25,18 +25,28 @@ public class Sale {
     }
 
     /**
+     * Checks if a line item with the specified item ID exists in the sale.
+     *
+     * @param searchedItemID The ID of the item to search for.
+     * @return The LineItem if found; otherwise, null.
+     */
+    private LineItem findLineItem(int searchedItemID) {
+        for (LineItem lineItem : itemsInSale) {
+            if (lineItem.getItemDTO().getItemID() == searchedItemID) {
+                return lineItem;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Checks if an item with the specified ID is already entered in the sale.
      *
      * @param searchedItemID The ID of the item to search for.
      * @return True if the item is already entered in the sale; otherwise, false.
      */
     public boolean isAlreadyEntered(int searchedItemID) {
-        for (LineItem lineItem : itemsInSale) {
-            if (lineItem.getItemDTO().getItemID() == searchedItemID) {
-                return true;
-            }
-        }
-        return false;
+        return findLineItem(searchedItemID) != null;
     }
 
     /**
@@ -46,15 +56,12 @@ public class Sale {
      * @return The item DTO of the incremented item if found; otherwise, null.
      */
     public ItemDTO incrementItemQuantity(int itemID) {
-        for (LineItem lineItem : itemsInSale) {
-            if (lineItem.getItemDTO().getItemID() == itemID) {
-                lineItem.incrementQuantity();
-
-                ItemDTO currentItemDTO = lineItem.getItemDTO();
-                updateTotalPriceAndVAT(currentItemDTO);
-
-                return currentItemDTO;
-            }
+        LineItem lineItem = findLineItem(itemID);
+        if (lineItem != null) {
+            lineItem.incrementQuantity();
+            ItemDTO currentItemDTO = lineItem.getItemDTO();
+            updateTotalPriceAndVAT(currentItemDTO);
+            return currentItemDTO;
         }
         return null;
     }

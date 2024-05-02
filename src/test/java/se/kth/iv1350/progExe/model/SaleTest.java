@@ -52,6 +52,7 @@ class SaleTest {
         assertEquals(expectedResult, result, "Item quantity should be incremented by 1");
     }
 
+
     @Test
     void testAddItem() {
         int itemID = 1;

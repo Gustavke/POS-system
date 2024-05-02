@@ -88,7 +88,7 @@ public class Controller {
         prnt.print(receipt);
         cashReg.updateBalance(receipt.getTotalPrice());
         inv.updateInventory(receipt);
-        acc.uppdateAccounting(receipt);
+        acc.updateAccounting(receipt);
 
         return receipt.getChange();
     }

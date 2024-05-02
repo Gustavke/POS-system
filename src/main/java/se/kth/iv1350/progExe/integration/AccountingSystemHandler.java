@@ -12,7 +12,9 @@ public class AccountingSystemHandler {
      *
      * @param receipt The receipt DTO containing information about the sale.
      */
-    public void uppdateAccounting(ReceiptDTO receipt) {
+    public void updateAccounting(ReceiptDTO receipt) {
+
         // Do something to update the accounting system with the receipt information
+        System.out.println("Accounting system updated.");
     }
 }

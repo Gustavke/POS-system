@@ -41,13 +41,4 @@ public class ItemDTO {
         return VAT;
     }
 
-    @Override
-    public String toString() {
-        return "ItemDTO{" +
-                "itemID=" + itemID +
-                ", price=" + price +
-                ", itemDescription='" + itemDescription + '\'' +
-                ", VAT=" + VAT +
-                '}';
-    }
 }
