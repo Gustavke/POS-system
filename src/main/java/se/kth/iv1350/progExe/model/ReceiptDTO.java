@@ -24,7 +24,7 @@ public class ReceiptDTO {
      * @param sale The sale object containing information about the transaction.
      * @param payment The payment object containing information about the payment.
      */
-    public ReceiptDTO(Sale sale, Payment payment) {
+    ReceiptDTO(Sale sale, Payment payment) {
         this.timeOfSale = sale.getTimeOfSale();
         this.itemsBought = sale.getItemsInSale();
         this.totalPrice = payment.getTotalToPay();

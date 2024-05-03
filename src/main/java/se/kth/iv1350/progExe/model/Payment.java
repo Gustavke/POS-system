@@ -28,32 +28,32 @@ class Payment {
      *
      * @param amountPaid The amount paid by the customer.
      */
-    public void setAmountPaid(double amountPaid) {
+    void setAmountPaid(double amountPaid) {
         this.amountPaid = amountPaid;
         calculateChange();
     }
 
-    private void calculateChange() {
+    void calculateChange() {
         change = amountPaid - totalToPay;
     }
 
-    public double getTotalPrice() {
+    double getTotalPrice() {
         return totalPrice;
     }
 
-    public double getTotalVAT() {
+    double getTotalVAT() {
         return totalVAT;
     }
 
-    public double getTotalToPay() {
+    double getTotalToPay() {
         return totalToPay;
     }
 
-    public double getAmountPaid() {
+    double getAmountPaid() {
         return amountPaid;
     }
 
-    public double getChange() {
+    double getChange() {
         return change;
     }
 }
