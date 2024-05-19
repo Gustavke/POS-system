@@ -64,15 +64,16 @@ public class Controller {
 
         if (sale.isAlreadyEntered(itemID)) {
             enteredItemResult = sale.incrementItemQuantity(itemID);
+            return enteredItemResult;
         } else {
             try {
                 enteredItemResult = inv.getItemDetails(itemID);
                 sale.addItem(enteredItemResult, quantity);
+                return enteredItemResult;
             } catch (InventorySystemException e) {
                 throw new OperationFailedException("Failed to get item details", e);
             }
         }
-        return enteredItemResult;
     }
 
     /**
