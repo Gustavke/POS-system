@@ -9,16 +9,21 @@ import java.util.Scanner;
  * The InventorySystemHandler class is responsible for handling interactions with the inventory system.
  */
 public class InventorySystemHandler {
+    public static final int ITEM_ID_TO_SIMULATE_FAILED_CONNECTION = -1;
 
 
     /**
      * Retrieves details of an item from the inventory system based on the provided item ID.
      *
      * @param itemID The ID of the item to retrieve details for.
-     * @return An ItemDTO object containing the details of the item, or null if the item is not found.
+     * @return An ItemDTO object containing the details of the item.
+     * @throws UnknownItemIDException If the item ID is not found in the inventory system.
+     * @throws InventorySystemException If there is a failure connecting to the external inventory system.
      */
-    public ItemDTO getItemDetails(int itemID) throws Exception {
-
+    public ItemDTO getItemDetails(int itemID) throws UnknownItemIDException, InventorySystemException {
+        if (itemID == ITEM_ID_TO_SIMULATE_FAILED_CONNECTION) {
+            throw new InventorySystemException("Could not connect to external inventory system");
+        }
         Scanner scanner = new Scanner(INVENTORY_DATA);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
@@ -33,7 +38,7 @@ public class InventorySystemHandler {
             }
         }
         scanner.close();
-        return null; // Item not found
+        throw new UnknownItemIDException(itemID);
     }
 
     /**
@@ -88,7 +93,7 @@ public class InventorySystemHandler {
                     "40,0.75,Lemon,0.05\n" +
                     "41,3.25,Garlic,0.05\n" +
                     "42,1.99,Ginger,0.05\n" +
-                    "43,2.99,Avocado,0.05\n" +
+                    "43,3.99,Avocado,0.05\n" +
                     "44,1.25,Lime,0.05\n" +
                     "45,2.50,Cucumber,0.05\n" +
                     "46,1.99,Bell Pepper,0.05\n" +

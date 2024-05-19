@@ -15,23 +15,50 @@ class InventorySystemHandlerTest {
     }
 
     @Test
-    void testGetItemDetailsValid() throws Exception {
+    void testGetItemDetailsValid() {
         int validItemID = 1;
         ItemDTO itemDTO = null;
 
-        itemDTO = inventorySystemHandler.getItemDetails(validItemID);
-
-        assertNotNull(itemDTO, "A valid itemDTO should be returned");
-        assertEquals(validItemID, itemDTO.getItemID(),"The returned item should have same ID as the searched item");
+        try {
+            itemDTO = inventorySystemHandler.getItemDetails(validItemID);
+            assertNotNull(itemDTO, "A valid itemDTO should be returned");
+            assertEquals(validItemID, itemDTO.getItemID(),
+                    "The returned item should have same ID as the searched item");
+        } catch (Exception e) {
+            fail("A valid item threw an exception: " + e.getMessage());
+        }
     }
 
     @Test
-    void testGetItemDetailsInvalid() throws Exception {
-        int invalidItemID = -1;
+    void testGetItemDetailsInvalid() {
+        int invalidItemID = -2;
         ItemDTO itemDTO;
 
-        itemDTO = inventorySystemHandler.getItemDetails(invalidItemID);
+        try {
+            itemDTO = inventorySystemHandler.getItemDetails(invalidItemID);
+            fail("An invalid item ID should throw UnknownItemIDException");
+        } catch (UnknownItemIDException e) {
+            assertEquals("Unknown item ID: " + invalidItemID, e.getMessage(),
+                    "Incorrect exception message");
+            assertEquals(invalidItemID, e.getItemIDThatIsUnknown(),
+                    "Exception returns incorrect item ID that is unknown");
+        } catch (InventorySystemException e) {
+            fail("An invalid item ID should throw UnknownItemIDException");
+        }
 
-        assertNull(itemDTO, "An invalid itemID should generate a null itemDTO");
+    }
+
+    @Test
+    public void testGetItemDetailsFailedConnection() {
+        int simulateFailedConnectionID = InventorySystemHandler.ITEM_ID_TO_SIMULATE_FAILED_CONNECTION;
+        try {
+            inventorySystemHandler.getItemDetails(simulateFailedConnectionID);
+            fail("Expected an InventorySystemException to be thrown");
+        } catch (InventorySystemException e) {
+            assertEquals("Could not connect to external inventory system", e.getMessage(),
+                    "Incorrect exception message");
+        } catch (UnknownItemIDException e) {
+            fail("Expected an InventorySystemException, but got an UnknownItemIDException");
+        }
     }
 }

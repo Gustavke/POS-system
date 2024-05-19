@@ -2,6 +2,8 @@ package se.kth.iv1350.progExe.view;
 
 import se.kth.iv1350.progExe.controller.Controller;
 import se.kth.iv1350.progExe.integration.ItemDTO;
+import se.kth.iv1350.progExe.integration.UnknownItemIDException;
+import se.kth.iv1350.progExe.util.LogHandler;
 
 import java.text.DecimalFormat;
 
@@ -13,34 +15,40 @@ import java.text.DecimalFormat;
 public class View {
 
     private final Controller contr;
+    private ErrorMessageHandler errorMsgHandler = new ErrorMessageHandler();
+    private LogHandler logger = new LogHandler();
 
     public View(Controller contr) {
         this.contr = contr;
+        contr.addPaymentObserver(new TotalRevenueView());
+        contr.addPaymentObserver(new TotalRevenueFileOutput());
     }
 
 
     private static void printItemDetails(ItemDTO item, double runningTotalIncVAT) {
         System.out.println("\tItem:         " + item.getItemDescription());
-        System.out.println("\tPrice:        " + item.getPrice()+" EUR");
-        System.out.println("\tVAT:          " + item.getVAT()*100 +" %");
+        System.out.println("\tPrice:        " + item.getPrice() + " EUR");
+        System.out.println("\tVAT:          " + item.getVAT() * 100 + " %");
         System.out.println("\tRunning total (incl. VAT): " + runningTotalIncVAT + " EUR\n");
     }
 
     /**
      * Simulates entering items and prints their details along with the running total
      */
-    private void simulateEnterItems() throws Exception {
+    private void simulateEnterItems() {
         double runningTotalIncVAT = 0;
-        for (int i = 0; i < 67; i += 11) {
-            
-            ItemDTO enteredItem = contr.enterItem(i, 1);
-            System.out.println("Add 1 item with item id " + i + " :");
-
-            if(enteredItem != null){
-                runningTotalIncVAT += enteredItem.getPrice() + enteredItem.getPrice()*enteredItem.getVAT();
+        for (int i = -1; i < 67; i += 11) {
+            try {
+                ItemDTO enteredItem = contr.enterItem(i, 1);
+                System.out.println("Add 1 item with item id " + i + " :");
+                runningTotalIncVAT += enteredItem.getPrice() + enteredItem.getPrice() * enteredItem.getVAT();
                 printItemDetails(enteredItem, Math.ceil(runningTotalIncVAT * 100) / 100);
-            } else {
-                System.out.println("\tItem not found.\n");
+            } catch (UnknownItemIDException e) {
+                errorMsgHandler.showErrorMsg("Item with ID "
+                        + e.getItemIDThatIsUnknown() + " does not exist.");
+            }
+            catch(Exception exception){
+                writeToLogAndUI("Failed to enter item, please try again.", exception);
             }
         }
     }
@@ -49,7 +57,7 @@ public class View {
     /**
      * Simulates a complete sale taking place at the POS-system.
      */
-    public void runFakeExecution() throws Exception {
+    public void runFakeExecution() {
         DecimalFormat df = new DecimalFormat("#0.00");
         contr.startSale();
         System.out.println("A sale has been started. \n");
@@ -66,6 +74,11 @@ public class View {
         double change = contr.enterPayment(amountPaid);
 
         System.out.println("Change to give the customer : " + df.format(change) + " EUR\n");
+    }
+
+    private void writeToLogAndUI(String uiMsg, Exception exception){
+        errorMsgHandler.showErrorMsg(uiMsg);
+        logger.logException(exception);
     }
 
 }

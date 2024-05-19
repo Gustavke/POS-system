@@ -2,8 +2,12 @@ package se.kth.iv1350.progExe.controller;
 
 import se.kth.iv1350.progExe.integration.*;
 import se.kth.iv1350.progExe.model.CashRegister;
+import se.kth.iv1350.progExe.model.PaymentObserver;
 import se.kth.iv1350.progExe.model.ReceiptDTO;
 import se.kth.iv1350.progExe.model.Sale;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Controller class is responsible for coordinating interactions between the view, model, and external systems.
@@ -15,6 +19,7 @@ public class Controller {
     private final DiscountDatabaseHandler disc;
     private final InventorySystemHandler inv;
     private final CashRegister cashReg;
+    private List<PaymentObserver> paymentObservers = new ArrayList<>();
 
     private Sale sale;
 
@@ -40,7 +45,7 @@ public class Controller {
      */
     public void startSale() {
         sale = new Sale();
-
+        sale.addPaymentObservers(paymentObservers);
     }
 
     /**
@@ -50,17 +55,21 @@ public class Controller {
      *
      * @param itemID The ID of the item to enter.
      * @param quantity The quantity of the item to enter.
-     * @return The entered item DTO if successful; otherwise, null.
+     * @return An ItemDTO for the entered item ID
+     * @throws UnknownItemIDException If the item ID is not found in the inventory system.
+     * @throws OperationFailedException If there is a failure in the inventory system while retrieving item details.
      */
-    public ItemDTO enterItem(int itemID, int quantity) throws Exception {
+    public ItemDTO enterItem(int itemID, int quantity) throws UnknownItemIDException, OperationFailedException {
         ItemDTO enteredItemResult;
 
         if (sale.isAlreadyEntered(itemID)) {
             enteredItemResult = sale.incrementItemQuantity(itemID);
         } else {
-            enteredItemResult = inv.getItemDetails(itemID);
-            if (enteredItemResult != null) {
+            try {
+                enteredItemResult = inv.getItemDetails(itemID);
                 sale.addItem(enteredItemResult, quantity);
+            } catch (InventorySystemException e) {
+                throw new OperationFailedException("Failed to get item details", e);
             }
         }
         return enteredItemResult;
@@ -95,6 +104,15 @@ public class Controller {
 
     public Sale getSale() {
         return sale;
+    }
+
+    /**
+     * Adds a payment observers to be notified of new payments.
+     *
+     * @param paymentObserver The PaymentObserver object to add.
+     */
+    public void addPaymentObserver(PaymentObserver paymentObserver) {
+        paymentObservers.add(paymentObserver);
     }
 }
 

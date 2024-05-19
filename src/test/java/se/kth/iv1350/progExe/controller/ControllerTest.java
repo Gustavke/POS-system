@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import se.kth.iv1350.progExe.integration.*;
-import se.kth.iv1350.progExe.model.Sale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +17,7 @@ class ControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller =  new Controller(prnt, acc, disc, inv);
+        controller = new Controller(prnt, acc, disc, inv);
         controller.startSale();
     }
 
@@ -33,22 +32,57 @@ class ControllerTest {
     }
 
     @Test
-    void testEnterValidItem() throws Exception {
-        ItemDTO itemDTO = controller.enterItem(1, 1);
-        assertNotNull(itemDTO, "ItemDTO should be initialized after calling enterItem");
+    void testEnterValidItem() {
+        ItemDTO itemDTO = null;
+        try {
+            itemDTO = controller.enterItem(1, 1);
+            assertNotNull(itemDTO, "ItemDTO should be initialized after calling enterItem");
+        } catch (Exception e) {
+            fail("A valid item threw an exception: " + e.getMessage());
+        }
     }
 
     @Test
-    void testEnterInvalidItem() throws Exception {
-        ItemDTO itemDTO = controller.enterItem(-1, 1);
-        assertNull(itemDTO, "ItemDTO should not be initialized after calling enterItem with invalid itemID");
+    void testEnterInvalidItem() {
+        int invalidItemID = -2;
+        ItemDTO itemDTO = null;
+        try {
+            itemDTO = controller.enterItem(invalidItemID, 1);
+            fail("An invalid item ID should throw UnknownItemIDException");
+        } catch (UnknownItemIDException e) {
+            assertEquals("Unknown item ID: " + invalidItemID, e.getMessage(),
+                    "Incorrect exception message");
+            assertEquals(invalidItemID, e.getItemIDThatIsUnknown(),
+                    "Exception returns incorrect item ID that is unknown");
+        } catch (OperationFailedException e) {
+            fail("UnknownItemIDException should have been thrown in the controller");
+        }
     }
 
     @Test
-    void testEnterDuplicateItem() throws Exception {
-        controller.enterItem(1, 1);
-        ItemDTO itemDTO = controller.enterItem(1, 1);
-        assertNotNull(itemDTO, "ItemDTO should be returned from sale when adding duplicate items");
+    public void testEnterItemFailedConnection() {
+        int simulateFailedConnectionID = InventorySystemHandler.ITEM_ID_TO_SIMULATE_FAILED_CONNECTION;
+        try {
+            controller.enterItem(simulateFailedConnectionID, 1);
+            fail("Expected an OperationFailedException to be thrown");
+        } catch (OperationFailedException e) {
+            System.out.println(e.getMessage());
+            assertEquals("Failed to get item details", e.getMessage(),
+                    "Incorrect exception message");
+        } catch (Exception e) {
+            fail("Expected an InventorySystemException, but got an UnknownItemIDException");
+        }
+    }
+
+    @Test
+    void testEnterDuplicateItem() {
+        try {
+            controller.enterItem(1, 1);
+            ItemDTO itemDTO = controller.enterItem(1, 1);
+            assertNotNull(itemDTO, "ItemDTO should be returned from sale when adding duplicate items");
+        } catch (Exception e) {
+            fail("A valid item threw an exception: " + e.getMessage());
+        }
     }
 
     @Test
@@ -58,15 +92,19 @@ class ControllerTest {
     }
 
     @Test
-    void testCloseSaleWithItems() throws Exception {
-        controller.enterItem(1, 1);
-        double totalPrice = controller.closeSale();
-        assertTrue(totalPrice > 0, "Incorrect total price returned");
+    void testCloseSaleWithItems() {
+        try {
+            controller.enterItem(1, 1);
+            double totalPrice = controller.closeSale();
+            assertTrue(totalPrice > 0, "Incorrect total price returned");
+        } catch (Exception e) {
+            fail("A valid item threw an exception: " + e.getMessage());
+        }
     }
 
     @Test
     void testEnterPayment() {
-        ItemDTO itemDTO = new ItemDTO(9999, 10,"test item", 0.10);
+        ItemDTO itemDTO = new ItemDTO(9999, 10, "test item", 0.10);
         controller.getSale().addItem(itemDTO, 1);
         controller.closeSale();
         double change = controller.enterPayment(20);

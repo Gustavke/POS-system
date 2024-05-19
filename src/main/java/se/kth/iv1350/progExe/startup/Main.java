@@ -17,7 +17,7 @@ public class Main {
      *
      * @param args The application does not take any command-line parameters.
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         PrinterHandler prnt = new PrinterHandler();
         AccountingSystemHandler acc = new AccountingSystemHandler();
@@ -28,6 +28,7 @@ public class Main {
 
         View view = new View(contr);
 
+        view.runFakeExecution();
         view.runFakeExecution();
     }
 }

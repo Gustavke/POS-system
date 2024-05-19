@@ -4,6 +4,7 @@ import se.kth.iv1350.progExe.integration.ItemDTO;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Sale class represents a sale transaction for one customer.
@@ -14,6 +15,7 @@ public class Sale {
     private double totalPrice;
     private double VAT;
     private Payment payment;
+    private List<PaymentObserver> paymentObservers = new ArrayList<>();
 
 
     /**
@@ -101,8 +103,15 @@ public class Sale {
      */
     public ReceiptDTO enterPayment(double amount){
         payment.setAmountPaid(amount);
+        notifyObservers();
         ReceiptDTO receipt = new ReceiptDTO(this, payment);
         return receipt;
+    }
+
+    private void notifyObservers() {
+        for (PaymentObserver paymentObserver : paymentObservers) {
+            paymentObserver.newPayment(payment.getTotalToPay());
+        }
     }
 
     /**
@@ -122,6 +131,16 @@ public class Sale {
 
     public LocalTime getTimeOfSale() {
         return timeOfSale;
+    }
+
+
+    /**
+     * Adds a list of payment observers to be notified of new payments.
+     *
+     * @param paymentObservers The list of PaymentObserver objects to add.
+     */
+    public void addPaymentObservers(List<PaymentObserver> paymentObservers) {
+        this.paymentObservers.addAll(paymentObservers);
     }
 
     class LineItem {
